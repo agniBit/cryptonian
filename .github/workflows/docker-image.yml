@@ -1,0 +1,34 @@
+name: Docker Image CI
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      IMAGE_NAME: cryptonian
+      IMAGE_TAG: ${{ github.ref_name }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build the Docker image
+      run: docker build . --tag $IMAGE_NAME:$IMAGE_TAG
+
+    - name: Login to ECR
+      id: ecr
+      uses: jwalton/gh-ecr-login@v3
+      with:
+        access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        region: ap-south-1
+
+    - name: Tag and Push to ECR
+      run: |
+        docker tag $IMAGE_NAME:$IMAGE_TAG ${{ secrets.AWS_ECR_URI }}/$IMAGE_NAME:$IMAGE_TAG
+        docker push ${{secrets.AWS_ECR_URI }}/$IMAGE_NAME:$IMAGE_TAG
+        echo "image name : $IMAGE_NAME:$IMAGE_TAG"

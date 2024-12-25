@@ -1,0 +1,25 @@
+SERVER:
+  PORT: "8080"
+  COMMON_DEADLINE_IN_MS: 1000
+  LOG_FILE: "./temp/app.log"
+  ENV: "dev"
+
+LOGGER:
+  LOG_LEVEL: "info"
+
+NEWRELIC:
+  APP_NAME: "algo-signal-local"
+  LICENSE_KEY: ""
+
+RDB:
+  HOST: "localhost"
+  PORT: 5432
+  USERNAME: "postgres"
+  PASSWORD: "password"
+  DB_NAME: "trade_algo"
+  MIGRATION: false
+  MAX_IDLE_CONNS: 1
+  MAX_OPEN_CONNS: 10
+  CONN_MAX_LIFETIME_IN_MINUTES: 60
+
+TWILIO:

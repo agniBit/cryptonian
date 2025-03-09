@@ -3,38 +3,44 @@ package broker
 import (
 	"context"
 	"errors"
-	"sync"
 
-	"github.com/agniBit/cryptonian/external/broker/binance"
+	"github.com/agniBit/cryptonian/internal/logger"
 	"github.com/agniBit/cryptonian/model/cfg"
 )
 
+type brokerType int
+
 const (
-	Binance = 1
+	Binance brokerType = iota
 )
 
 type Broker interface {
 }
 
 type broker struct {
-	brokerSyncMap *sync.Map
+	brokerSyncMap map[brokerType]BrokerService
 }
 
 func NewBrokerService(cfg *cfg.Config) Broker {
 	// init all the broker services
-	binace := binance.NewBinanceService(cfg)
 
-	brokerSyncMap := &sync.Map{}
-	brokerSyncMap.Store(Binance, binace)
+	brokerSyncMap := map[brokerType]BrokerService{}
 
 	return &broker{
 		brokerSyncMap: brokerSyncMap,
 	}
 }
 
-func (b *broker) getBrokerService(ctx context.Context, brokerId int64) (Broker, error) {
-	if broker, ok := b.brokerSyncMap.Load(brokerId); ok {
-		return broker.(Broker), nil
+type BrokerService interface {
+}
+
+func (b *broker) getBrokerService(ctx context.Context, brokerType brokerType) (Broker, error) {
+	brokerService, ok := b.brokerSyncMap[brokerType]
+	if !ok {
+		err := errors.New("Broker not found")
+		logger.Error(ctx, "Broker not found", err)
+		return nil, err
 	}
-	return nil, errors.New("broker not found")
+
+	return brokerService, nil
 }

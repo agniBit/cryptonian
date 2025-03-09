@@ -19,7 +19,7 @@ func InitNewRelic(cfg *cfg.Config) {
 		)
 
 		if err != nil {
-			if cfg.Server.Enviroment == "prod" {
+			if cfg.Server.Environment == "prod" {
 				panic(err)
 			}
 		}
